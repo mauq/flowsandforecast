@@ -1,0 +1,27 @@
+.weather-block {
+  width: 576px;
+}
+
+.day {
+  display: flex;
+}
+
+.day-card {
+
+}
+
+.cent {
+  display: flex;
+}
+
+.bar-cont {
+  height: 100px;
+  position: relative;
+}
+
+.bar {
+  width: 27px;
+  background-color: blue;
+  position: absolute;
+  bottom: 0;
+}
