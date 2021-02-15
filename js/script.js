@@ -9,7 +9,14 @@ function toAmpm(curr) {
   return time;
 }
 
-function swapView(cont, data){
+function swapView(cont, data, e){
+  //highlight clicked card
+  Array.from(document.querySelectorAll('.highlight')).forEach((el) => el.classList.remove('highlight'));
+  if (e.target.classList.contains('day-card')) {
+    e.target.classList.add('highlight');
+  } else {
+    e.target.parentNode.classList.add('highlight');
+  }
   const cent = document.getElementsByClassName(cont);
 
   //remove contents of container
@@ -41,7 +48,7 @@ function swapView(cont, data){
 axios.get('http://api.openweathermap.org/data/2.5/forecast?q=Forks&units=imperial&appid=23bd40f43f1959f801895de830da8f31')
   .then(function (response) {
     // handle success
-    //console.log(response);
+    console.log(response);
 
     //city name for weather forecast
     const mainContainer = document.getElementsByClassName('head');
@@ -68,7 +75,8 @@ axios.get('http://api.openweathermap.org/data/2.5/forecast?q=Forks&units=imperia
         forecast.set(day, {
           'hi': item.main.temp_max,
           'lo': item.main.temp_min,
-          'rain': [[t, item.pop]]
+          'rain': [[t, item.pop]],
+          'accum': item?.rain?.['3h'] || 0
         });
       } else {
         if (forecast.get(day).hi < item.main.temp_max) {
@@ -83,6 +91,7 @@ axios.get('http://api.openweathermap.org/data/2.5/forecast?q=Forks&units=imperia
         }
         let temp = forecast.get(day);
         temp.rain.push([t, item.pop]);
+        temp.accum += item?.rain?.['3h'] || 0;
         forecast.set(day, temp);
       }
     });
@@ -94,18 +103,21 @@ axios.get('http://api.openweathermap.org/data/2.5/forecast?q=Forks&units=imperia
 
       const dayCard = document.createElement('div');
       dayCard.classList.add('day-card');
-      dayCard.addEventListener('click', function() {swapView('cent', values.rain)});
 
-      const dayOfWeek = document.createElement('h3')
+      const dayOfWeek = document.createElement('h3');
+      const mm = document.createElement('p');
       const hilo = document.createElement('p');
       dayOfWeek.innerHTML = keys;
-      hilo.innerHTML = values.hi + ' ' + values.lo;
+      mm.innerHTML = values.accum.toFixed(2) + 'mm';
+      hilo.innerHTML = values.hi.toFixed(1) + ' ' + values.lo.toFixed(1);
 
       dayCard.appendChild(dayOfWeek);
+      dayCard.appendChild(mm);
       dayCard.appendChild(hilo);
+      dayCard.addEventListener('click', function() {swapView('cent', values.rain, event)});
       fiveDay[0].appendChild(dayCard);
     });
-
+    document.getElementsByClassName('day')[0].childNodes[1].click();
   })
   .catch(function (error) {
     // handle error
